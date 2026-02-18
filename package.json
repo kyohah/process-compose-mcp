@@ -1,0 +1,48 @@
+{
+  "name": "process-compose-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint . --write",
+    "format": "biome format .",
+    "format:write": "biome format . --write",
+    "check": "biome check .",
+    "check:fix": "biome check . --write",
+    "ci": "npm run typecheck && npm run check && npm test",
+    "start": "node dist/index.js",
+    "dev": "node --enable-source-maps dist/index.js",
+    "pc:up": "process-compose -f ./examples/process-compose.yaml -p ${PC_PORT:-19081} -t=false up",
+    "pc:up:detached": "process-compose -f ./examples/process-compose.yaml -p ${PC_PORT:-19081} -t=false -D up",
+    "pc:down": "process-compose -p ${PC_PORT:-19081} down",
+    "pc:openapi:download": "node ./scripts/download-process-compose-openapi.mjs",
+    "pc:openapi:generate": "orval --config ./orval.config.cjs && node ./scripts/fix-orval-imports.mjs",
+    "pc:openapi:sync": "npm run pc:openapi:download && npm run pc:openapi:generate",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run test/processCompose.integration.test.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.2",
+    "@types/node": "^25.2.3",
+    "@vitest/coverage-v8": "^4.0.18",
+    "orval": "^8.4.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "yaml": "^2.8.2",
+    "zod": "^4.3.6"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

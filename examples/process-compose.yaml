@@ -1,0 +1,7 @@
+version: "0.5"
+
+processes:
+  heartbeat:
+    command: "node ./processes/heartbeat.mjs"
+    availability:
+      restart: "on_failure"
