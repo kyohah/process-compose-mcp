@@ -130,61 +130,61 @@ describeIfProcessCompose("process-compose integration", () => {
   });
 
   it("lists heartbeat from real process-compose", async () => {
-    const result = await callTool("pc_list_processes", {});
+    const result = await callTool("process_compose_list_processes", {});
     const names = ((result.processes as Array<Record<string, unknown>>) ?? []).map((p) => p.name);
     expect(names).toContain("heartbeat");
   });
 
   it("reads live metadata from project and process endpoints", async () => {
-    const alive = await callTool("pc_is_alive", {});
+    const alive = await callTool("process_compose_is_alive", {});
     expect(alive).toHaveProperty("status");
 
-    const graph = await callTool("pc_get_dependency_graph", {});
+    const graph = await callTool("process_compose_get_dependency_graph", {});
     expect(graph).toHaveProperty("graph");
 
-    const process = await callTool("pc_get_process", { name: "heartbeat" });
+    const process = await callTool("process_compose_get_process", { name: "heartbeat" });
     expect(process).toMatchObject({
       process: {
         name: "heartbeat",
       },
     });
 
-    const processInfo = await callTool("pc_get_process_info", { name: "heartbeat" });
+    const processInfo = await callTool("process_compose_get_process_info", { name: "heartbeat" });
     expect(processInfo).toHaveProperty("processInfo");
 
-    const projectName = await callTool("pc_get_project_name", {});
+    const projectName = await callTool("process_compose_get_project_name", {});
     expect(projectName).toHaveProperty("project");
 
-    const healthSummary = await callTool("pc_health_summary", {});
+    const healthSummary = await callTool("process_compose_health_summary", {});
     expect(healthSummary).toHaveProperty("summary.counts.total");
     expect(Number((healthSummary.summary as { counts: { total: number } }).counts.total)).toBeGreaterThanOrEqual(1);
   });
 
   it("restarts heartbeat via MCP tool", async () => {
-    const restartResult = await callTool("pc_restart_process", { name: "heartbeat" });
+    const restartResult = await callTool("process_compose_restart_process", { name: "heartbeat" });
     expect(restartResult).toMatchObject({ ok: true });
     await waitForHeartbeatState(true);
   });
 
   it("stops and starts heartbeat through MCP tools", async () => {
-    const stopResult = await callTool("pc_stop_process", { name: "heartbeat" });
+    const stopResult = await callTool("process_compose_stop_process", { name: "heartbeat" });
     expect(stopResult).toMatchObject({ ok: true });
     await waitForHeartbeatState(false);
 
-    const startResult = await callTool("pc_start_process", { name: "heartbeat" });
+    const startResult = await callTool("process_compose_start_process", { name: "heartbeat" });
     expect(startResult).toMatchObject({ ok: true });
     await waitForHeartbeatState(true);
   });
 
   it("stops process via bulk operation and starts it again", async () => {
-    const bulkStop = await callTool("pc_stop_processes", { names: ["heartbeat"], confirm: true });
+    const bulkStop = await callTool("process_compose_stop_processes", { names: ["heartbeat"], confirm: true });
     expect(bulkStop).toMatchObject({
       ok: true,
       names: ["heartbeat"],
     });
     await waitForHeartbeatState(false);
 
-    const startResult = await callTool("pc_start_process", { name: "heartbeat" });
+    const startResult = await callTool("process_compose_start_process", { name: "heartbeat" });
     expect(startResult).toMatchObject({ ok: true });
     await waitForHeartbeatState(true);
   });
@@ -192,7 +192,7 @@ describeIfProcessCompose("process-compose integration", () => {
   it("reads logs and project state from live API", async () => {
     await delay(1200);
 
-    const logs = await callTool("pc_get_process_logs", {
+    const logs = await callTool("process_compose_get_process_logs", {
       name: "heartbeat",
       endOffset: 0,
       limit: 50,
@@ -200,12 +200,12 @@ describeIfProcessCompose("process-compose integration", () => {
     expect(typeof logs.raw).toBe("string");
     expect(String(logs.raw)).toContain("heartbeat");
 
-    const state = await callTool("pc_get_project_state", {});
+    const state = await callTool("process_compose_get_project_state", {});
     expect(state).toHaveProperty("state");
   });
 
   it("returns suggestions for unknown process names", async () => {
-    const result = await handleToolCall(client, "pc_stop_process", { name: "missing-process-name" });
+    const result = await handleToolCall(client, "process_compose_stop_process", { name: "missing-process-name" });
     expect(result).toHaveProperty("error");
     expect(result).toHaveProperty("error.name", "missing-process-name");
 

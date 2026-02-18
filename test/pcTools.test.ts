@@ -39,7 +39,7 @@ describe("handleToolCall", () => {
       })),
     });
 
-    const result = await handleToolCall(client, "pc_list_processes", {});
+    const result = await handleToolCall(client, "process_compose_list_processes", {});
 
     expect(result).toMatchObject({
       processes: [
@@ -57,7 +57,7 @@ describe("handleToolCall", () => {
 
   it("requires name for destructive actions", async () => {
     const client = createClientStub();
-    const result = await handleToolCall(client, "pc_stop_process", {});
+    const result = await handleToolCall(client, "process_compose_stop_process", {});
     expect(result).toMatchObject({
       error: {
         message: "Invalid tool arguments",
@@ -83,7 +83,7 @@ describe("handleToolCall", () => {
       })),
     });
 
-    const result = await handleToolCall(client, "pc_stop_process", { name: "missing" });
+    const result = await handleToolCall(client, "process_compose_stop_process", { name: "missing" });
 
     expect(result).toMatchObject({
       error: {
@@ -101,7 +101,7 @@ describe("handleToolCall", () => {
       ),
     });
 
-    const result = await handleToolCall(client, "pc_tail_logs", { name: "worker", lines: 50 });
+    const result = await handleToolCall(client, "process_compose_tail_logs", { name: "worker", lines: 50 });
 
     expect(result).toMatchObject({
       name: "worker",
@@ -127,7 +127,7 @@ describe("handleToolCall", () => {
       })),
     });
 
-    const result = await handleToolCall(client, "pc_health_summary", {});
+    const result = await handleToolCall(client, "process_compose_health_summary", {});
 
     expect(result).toMatchObject({
       usedHealthEndpoint: false,
@@ -145,7 +145,7 @@ describe("handleToolCall", () => {
 
   it("requires confirm=true for bulk stop", async () => {
     const client = createClientStub();
-    const result = await handleToolCall(client, "pc_stop_processes", { names: ["api"] });
+    const result = await handleToolCall(client, "process_compose_stop_processes", { names: ["api"] });
     expect(result).toMatchObject({
       error: {
         message: "Invalid tool arguments",
@@ -158,7 +158,10 @@ describe("handleToolCall", () => {
       stopProcesses: vi.fn(async (names: string[]) => ({ stopped: names })),
     });
 
-    const result = await handleToolCall(client, "pc_stop_processes", { names: ["api", "worker"], confirm: true });
+    const result = await handleToolCall(client, "process_compose_stop_processes", {
+      names: ["api", "worker"],
+      confirm: true,
+    });
 
     expect(result).toMatchObject({
       ok: true,
